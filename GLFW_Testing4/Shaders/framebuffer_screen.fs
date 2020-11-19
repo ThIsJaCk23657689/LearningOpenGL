@@ -45,7 +45,10 @@ void main()
     }
     vec3 col = vec3(0.0);
     for(int i = 0; i < 9; i++){
-        col += sampleTex[i] * sharpen_kernel[i];
+        col += sampleTex[i] * edge_kernel[i];
     }
     FragColor = vec4(col, 1.0);
+
+
+    FragColor = texture(screenTexture, TexCoords);
 }

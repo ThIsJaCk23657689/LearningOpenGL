@@ -144,6 +144,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="imgui.ini" />
+    <None Include="Shaders\cubemap.fs" />
+    <None Include="Shaders\cubemap.vs" />
     <None Include="Shaders\deapth_testing.fs" />
     <None Include="Shaders\deapth_testing.vs" />
     <None Include="Shaders\framebuffer_screen.fs" />

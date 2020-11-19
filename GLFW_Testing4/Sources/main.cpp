@@ -23,7 +23,7 @@ void scrollCallback(GLFWwindow* window, double xoffset, double yoffset);
 void proceessInput(GLFWwindow* window);
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 unsigned int loadTexture(char const* path);
-unsigned int loadCubeMap(char const* path);
+unsigned int loadCubemap(vector<std::string> faces);
 glm::mat4 GetPerspectiveProjMatrix(float fovy, float ascept, float znear, float zfar);
 glm::mat4 GetOrthoProjMatrix(float left, float right, float bottom, float top, float near, float far);
 
@@ -36,12 +36,13 @@ float lastY = (float)SCR_HEIGHT / 2.0f;
 bool firstMouse = true;
 bool moveCameraView = false;
 
-
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
 glm::mat4 view = glm::mat4(1.0f);
 glm::mat4 projection = glm::mat4(1.0f);
+
+unsigned int framebuffer, texColorBuffer, rbo;
 
 int main(int argc, char *argv[]) {
 
@@ -71,6 +72,7 @@ int main(int argc, char *argv[]) {
 
 	Shader ourShader("Shaders\\deapth_testing.vs", "Shaders\\deapth_testing.fs");
 	Shader screenShader("Shaders\\framebuffer_screen.vs", "Shaders\\framebuffer_screen.fs");
+	Shader cubemapShader("Shaders\\cubemap.vs", "Shaders\\cubemap.fs");
 	// Shader singleShader("Shaders\\deapth_testing.vs", "Shaders\\outlining.fs");
 
 	// Initalize ImGui and bind to GLFW and OpenGL3(glad)
@@ -218,12 +220,10 @@ int main(int argc, char *argv[]) {
 	glBindVertexArray(0);
 
 	// Create our frame buffer.
-	unsigned int framebuffer;
 	glGenFramebuffers(1, &framebuffer);
 	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
 
 	// Create texture (a color) to attach our frame buffer.
-	unsigned int texColorBuffer;
 	glGenTextures(1, &texColorBuffer);
 	glBindTexture(GL_TEXTURE_2D, texColorBuffer);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, SCR_WIDTH, SCR_HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
@@ -232,7 +232,6 @@ int main(int argc, char *argv[]) {
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texColorBuffer, 0);
 
-	unsigned int rbo;
 	glGenRenderbuffers(1, &rbo);
 	glBindRenderbuffer(GL_RENDERBUFFER, rbo);
 	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, SCR_WIDTH, SCR_HEIGHT);
@@ -248,7 +247,16 @@ int main(int argc, char *argv[]) {
 	unsigned int cubeTexture2 = loadTexture("Resources\\Textures\\container.jpg");
 	unsigned int floorTexture = loadTexture("Resources\\Textures\\metal.png");
 	unsigned int grassTexture = loadTexture("Resources\\Textures\\window.png");
-	
+
+	vector<std::string> faces{
+		"Resources\\Textures\\\skybox\\right.jpg",
+		"Resources\\Textures\\\skybox\\left.jpg",
+		"Resources\\Textures\\\skybox\\top.jpg",
+		"Resources\\Textures\\\skybox\\bottom.jpg",
+		"Resources\\Textures\\\skybox\\front.jpg",
+		"Resources\\Textures\\\skybox\\back.jpg",
+	};
+	unsigned int cubemapTexture = loadCubemap(faces);
 
 	vector<glm::vec3> windowsPosition{
 		glm::vec3(-1.5f, 0.0f, -0.48f),
@@ -275,7 +283,6 @@ int main(int argc, char *argv[]) {
 			sorted[distance] = windowsPosition[i];
 		}
 
-
 		// 1. PhaseOne
 		glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
 		glEnable(GL_DEPTH_TEST);
@@ -299,7 +306,24 @@ int main(int argc, char *argv[]) {
 		ourShader.setMat4("view", view);
 		ourShader.setMat4("projection", projection);
 
+		// Draw Skybox
+		glDepthFunc(GL_LEQUAL);
+		cubemapShader.use();
+		glm::mat4 view_skybox = glm::mat4(glm::mat3(camera.GetViewMatrix()));
+		cubemapShader.setMat4("view", view_skybox);
+		cubemapShader.setMat4("projection", projection);
+		glBindVertexArray(cubeVAO);
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
+			model = glm::mat4(1.0f);
+			model = glm::scale(model, glm::vec3(100.0f));
+			cubemapShader.setMat4("model", model);
+			glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+		glBindVertexArray(0);
+		glDepthFunc(GL_LESS);
+
 		// Draw floor
+		ourShader.use();
 		glBindVertexArray(planeVAO);
 			glBindTexture(GL_TEXTURE_2D, floorTexture);
 			model = glm::mat4(1.0f);
@@ -337,6 +361,8 @@ int main(int argc, char *argv[]) {
 		}
 		glBindVertexArray(0);
 		glDisable(GL_BLEND);
+
+		
 
 		
 		// 2. Phase Two
@@ -377,6 +403,15 @@ int main(int argc, char *argv[]) {
 void framebufferSizeCallback(GLFWwindow* window, int width, int height) {
 	SCR_WIDTH = width;
 	SCR_HEIGHT = height;
+	
+	glBindTexture(GL_TEXTURE_2D, texColorBuffer);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, SCR_WIDTH, SCR_HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, SCR_WIDTH, SCR_HEIGHT);
+	glBindRenderbuffer(GL_RENDERBUFFER, 0);
+	
 	glViewport(0, 0, width, height);
 }
 
@@ -479,44 +514,29 @@ unsigned int loadTexture(char const* path) {
 	return textureID;
 }
 
-unsigned int loadCubeMap(char const* path) {
+unsigned int loadCubemap(vector<std::string> faces) {
+
 	unsigned int textureID;
 	glGenTextures(1, &textureID);
-
-	int width, height, nrComponents;
-	unsigned char* data;
-
-
-
-	stbi_load(path, &width, &height, &nrComponents, 0);
-	if (data) {
-		GLenum format;
-		if (nrComponents == 1) {
-			format = GL_RED;
+	glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
+	
+	int width, height, nrChannels;
+	for (unsigned int i = 0; i < faces.size(); i++) {
+		unsigned char*  data = stbi_load(faces[i].c_str(), &width, &height, &nrChannels, 0);
+		if (data) {
+			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+			stbi_image_free(data);
+		} else {
+			std::cout << "Failed to load Cubemap texture at path:" << faces[i] << std::endl;
+			stbi_image_free(data);
 		}
-		else if (nrComponents == 3) {
-			format = GL_RGB;
-		}
-		else if (nrComponents == 4) {
-			format = GL_RGBA;
-		}
-
-		glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
-		glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-		glGenerateMipmap(GL_TEXTURE_2D);
-
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, format == GL_RGBA ? GL_CLAMP_TO_EDGE : GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, format == GL_RGBA ? GL_CLAMP_TO_EDGE : GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-		stbi_image_free(data);
 	}
-	else {
-		std::cout << "Failed to load texture at path:" << path << std::endl;
-		stbi_image_free(data);
-	}
-
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+	
 	return textureID;
 }
 

@@ -31,6 +31,8 @@
     <None Include="Shaders\framebuffer_screen.fs" />
     <None Include="Shaders\cubemap.fs" />
     <None Include="Shaders\cubemap.vs" />
+    <None Include="Shaders\reflection.vs" />
+    <None Include="Shaders\reflection.fs" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Headers\camera.h">

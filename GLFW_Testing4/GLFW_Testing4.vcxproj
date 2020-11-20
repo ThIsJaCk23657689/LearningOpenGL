@@ -151,6 +151,8 @@
     <None Include="Shaders\framebuffer_screen.fs" />
     <None Include="Shaders\framebuffer_screen.vs" />
     <None Include="Shaders\outlining.fs" />
+    <None Include="Shaders\reflection.fs" />
+    <None Include="Shaders\reflection.vs" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Headers\camera.h" />

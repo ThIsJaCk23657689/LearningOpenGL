@@ -73,6 +73,7 @@ int main(int argc, char *argv[]) {
 	Shader ourShader("Shaders\\deapth_testing.vs", "Shaders\\deapth_testing.fs");
 	Shader screenShader("Shaders\\framebuffer_screen.vs", "Shaders\\framebuffer_screen.fs");
 	Shader cubemapShader("Shaders\\cubemap.vs", "Shaders\\cubemap.fs");
+	Shader reflectShader("Shaders\\reflection.vs", "Shaders\\reflection.fs");
 	// Shader singleShader("Shaders\\deapth_testing.vs", "Shaders\\outlining.fs");
 
 	// Initalize ImGui and bind to GLFW and OpenGL3(glad)
@@ -85,36 +86,36 @@ int main(int argc, char *argv[]) {
 	ImGui::StyleColorsDark();
 
 	float cubeVertices[] = {
-		// positions			// texture coords
-		 0.5f,  0.5f,  0.5f,	1.0f, 1.0f,
-		-0.5F,  0.5f,  0.5f,	0.0f, 1.0f,
-		-0.5f, -0.5f,  0.5f,	0.0f, 0.0f,
-		 0.5f, -0.5f,  0.5f,	1.0f, 0.0f,
+		// positions			// Normal				// texture coords
+		 0.5f,  0.5f,  0.5f,	 0.0f, 0.0f, 1.0f,		1.0f, 1.0f,
+		-0.5F,  0.5f,  0.5f,	 0.0f, 0.0f, 1.0f,		0.0f, 1.0f,
+		-0.5f, -0.5f,  0.5f,	 0.0f, 0.0f, 1.0f,		0.0f, 0.0f,
+		 0.5f, -0.5f,  0.5f,	 0.0f, 0.0f, 1.0f,		1.0f, 0.0f,
 
-		0.5f,  0.5f,  0.5f,		1.0f, 1.0f,
-		0.5f, -0.5f,  0.5f,		0.0f, 1.0f,
-		0.5f, -0.5f, -0.5f,		0.0f, 0.0f,
-		0.5f,  0.5f, -0.5f,		1.0f, 0.0f,
+		0.5f,  0.5f,  0.5f,		 1.0f, 0.0f, 0.0f,		1.0f, 1.0f,
+		0.5f, -0.5f,  0.5f,		 1.0f, 0.0f, 0.0f,		0.0f, 1.0f,
+		0.5f, -0.5f, -0.5f,		 1.0f, 0.0f, 0.0f,		0.0f, 0.0f,
+		0.5f,  0.5f, -0.5f,		 1.0f, 0.0f, 0.0f,		1.0f, 0.0f,
 
-		-0.5f,  0.5f,  0.5f,	1.0f, 1.0f,
-		-0.5f,  0.5f, -0.5f,	1.0f, 0.0f,
-		-0.5f, -0.5f, -0.5f,	0.0f, 0.0f,
-		-0.5f, -0.5f,  0.5f,	0.0f, 1.0f,
+		-0.5f,  0.5f,  0.5f,	-1.0f, 0.0f, 0.0f,		1.0f, 1.0f,
+		-0.5f,  0.5f, -0.5f,	-1.0f, 0.0f, 0.0f,		1.0f, 0.0f,
+		-0.5f, -0.5f, -0.5f,	-1.0f, 0.0f, 0.0f,		0.0f, 0.0f,
+		-0.5f, -0.5f,  0.5f,	-1.0f, 0.0f, 0.0f,		0.0f, 1.0f,
 
-		 0.5f,  0.5f,  0.5f,	1.0f, 1.0f,
-		 0.5f,  0.5f, -0.5f,	1.0f, 0.0f,
-		-0.5f,  0.5f, -0.5f,	0.0f, 0.0f,
-		-0.5f,  0.5f,  0.5f,	0.0f, 1.0f,
+		 0.5f,  0.5f,  0.5f,	 0.0f, 1.0f, 0.0f,		1.0f, 1.0f,
+		 0.5f,  0.5f, -0.5f,	 0.0f, 1.0f, 0.0f,		1.0f, 0.0f,
+		-0.5f,  0.5f, -0.5f,	 0.0f, 1.0f, 0.0f,		0.0f, 0.0f,
+		-0.5f,  0.5f,  0.5f,	 0.0f, 1.0f, 0.0f,		0.0f, 1.0f,
 		
-		 0.5f, -0.5f,  0.5f,	1.0f, 1.0f,
-		-0.5f, -0.5f,  0.5f,	0.0f, 1.0f,
-		-0.5f, -0.5f, -0.5f,	0.0f, 0.0f,
-		 0.5f, -0.5f, -0.5f,	1.0f, 0.0f,
+		 0.5f, -0.5f,  0.5f,	0.0f, -1.0f, 0.0f,		1.0f, 1.0f,
+		-0.5f, -0.5f,  0.5f,	0.0f, -1.0f, 0.0f,		0.0f, 1.0f,
+		-0.5f, -0.5f, -0.5f,	0.0f, -1.0f, 0.0f,		0.0f, 0.0f,
+		 0.5f, -0.5f, -0.5f,	0.0f, -1.0f, 0.0f,		1.0f, 0.0f,
 		
-		 0.5f,  0.5f, -0.5f,	1.0f, 1.0f,
-		 0.5f, -0.5f, -0.5f,	1.0f, 0.0f,
-		-0.5f, -0.5f, -0.5f,	0.0f, 0.0f,
-		-0.5f,  0.5f, -0.5f,	0.0f, 1.0f,
+		 0.5f,  0.5f, -0.5f,	0.0f, 0.0f, -1.0f,		1.0f, 1.0f,
+		 0.5f, -0.5f, -0.5f,	0.0f, 0.0f, -1.0f,		1.0f, 0.0f,
+		-0.5f, -0.5f, -0.5f,	0.0f, 0.0f, -1.0f,		0.0f, 0.0f,
+		-0.5f,  0.5f, -0.5f,	0.0f, 0.0f, -1.0f,		0.0f, 1.0f,
 	};
 
 	unsigned int cubeIndices[] = {
@@ -138,34 +139,34 @@ int main(int argc, char *argv[]) {
 	};
 
 	float planeVertices[] = {
-		// Position				// Texture Coords
-		 5.0f, -0.5f,  5.0f,	2.0f, 0.0f,
-		-5.0f, -0.5f,  5.0f,	0.0f, 0.0f,
-		-5.0f, -0.5f, -5.0f,	0.0f, 2.0f,
+		// Position				// Normal			// Texture Coords
+		 5.0f, -0.5f,  5.0f,	0.0f, 1.0f, 0.0f,	2.0f, 0.0f,
+		-5.0f, -0.5f,  5.0f,	0.0f, 1.0f, 0.0f,	0.0f, 0.0f,
+		-5.0f, -0.5f, -5.0f,	0.0f, 1.0f, 0.0f,	0.0f, 2.0f,
 
-		 5.0f, -0.5f,  5.0f,	2.0f, 0.0f,
-		-5.0f, -0.5f, -5.0f,	0.0f, 2.0f,
-		 5.0f, -0.5f, -5.0f,	2.0f, 2.0f,
+		 5.0f, -0.5f,  5.0f,	0.0f, 1.0f, 0.0f,	2.0f, 0.0f,
+		-5.0f, -0.5f, -5.0f,	0.0f, 1.0f, 0.0f,	0.0f, 2.0f,
+		 5.0f, -0.5f, -5.0f,	0.0f, 1.0f, 0.0f,	2.0f, 2.0f,
 	};
 
 	float grassVertices[] = {
-		 0.0,  0.5, 0.0,		0.0, 0.0,
-		 0.0, -0.5, 0.0,		0.0, 1.0,
-		 1.0, -0.5, 0.0,		1.0, 1.0,
+		 0.0,  0.5, 0.0,		0.0f, 0.0f, 1.0f,	0.0, 0.0,
+		 0.0, -0.5, 0.0,		0.0f, 0.0f, 1.0f,	0.0, 1.0,
+		 1.0, -0.5, 0.0,		0.0f, 0.0f, 1.0f,	1.0, 1.0,
 
-		 0.0,  0.5, 0.0,		0.0, 0.0,
-		 1.0, -0.5, 0.0,		1.0, 1.0,
-		 1.0,  0.5, 0.0,		1.0, 0.0,
+		 0.0,  0.5, 0.0,		0.0f, 0.0f, 1.0f,	0.0, 0.0,
+		 1.0, -0.5, 0.0,		0.0f, 0.0f, 1.0f,	1.0, 1.0,
+		 1.0,  0.5, 0.0,		0.0f, 0.0f, 1.0f,	1.0, 0.0,
 	};
 
 	float quadVertices[] = {
-		-1.0f,  1.0f,  0.0f, 1.0f,
-		-1.0f, -1.0f,  0.0f, 0.0f,
-		 1.0f, -1.0f,  1.0f, 0.0f,
+		-1.0f,  1.0f,		0.0f, 1.0f,
+		-1.0f, -1.0f,		0.0f, 0.0f,
+		 1.0f, -1.0f,		1.0f, 0.0f,
 
-		-1.0f,  1.0f,  0.0f, 1.0f,
-		 1.0f, -1.0f,  1.0f, 0.0f,
-		 1.0f,  1.0f,  1.0f, 1.0f
+		-1.0f,  1.0f,		0.0f, 1.0f,
+		 1.0f, -1.0f,		1.0f, 0.0f,
+		 1.0f,  1.0f,		1.0f, 1.0f
 	};
 
 	unsigned int cubeVAO, cubeVBO, cubeEBO;
@@ -178,9 +179,11 @@ int main(int argc, char *argv[]) {
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cubeEBO);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(cubeIndices), cubeIndices, GL_STATIC_DRAW);
 		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
 		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+		glEnableVertexAttribArray(2);
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
 	glBindVertexArray(0);
 
 	unsigned int planeVAO, planeVBO;
@@ -190,9 +193,11 @@ int main(int argc, char *argv[]) {
 		glBindBuffer(GL_ARRAY_BUFFER, planeVBO);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(planeVertices), planeVertices, GL_STATIC_DRAW);
 		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
 		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+		glEnableVertexAttribArray(2);
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
 	glBindVertexArray(0);
 
 	unsigned int grassVAO, grassVBO;
@@ -202,9 +207,11 @@ int main(int argc, char *argv[]) {
 		glBindBuffer(GL_ARRAY_BUFFER, grassVBO);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(grassVertices), grassVertices, GL_STATIC_DRAW);
 		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
 		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+		glEnableVertexAttribArray(2);
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
 	glBindVertexArray(0);
 
 	unsigned int quadVAO, quadVBO;
@@ -269,6 +276,10 @@ int main(int argc, char *argv[]) {
 	ourShader.use();
 	ourShader.setInt("texture1", 0);
 
+	reflectShader.use();
+	reflectShader.setInt("skybox", 0);
+	reflectShader.setInt("texture1", 1);
+
 	while (!glfwWindowShouldClose(window)) {
 		float currentFrame = (float)glfwGetTime();
 		deltaTime = currentFrame - lastFrame;
@@ -306,6 +317,11 @@ int main(int argc, char *argv[]) {
 		ourShader.setMat4("view", view);
 		ourShader.setMat4("projection", projection);
 
+		reflectShader.use();
+		reflectShader.setMat4("view", view);
+		reflectShader.setMat4("projection", projection);
+		reflectShader.setVec3("cameraPos", camera.Position);
+
 		// Draw Skybox
 		glDepthFunc(GL_LEQUAL);
 		cubemapShader.use();
@@ -332,17 +348,22 @@ int main(int argc, char *argv[]) {
 		glBindVertexArray(0);
 
 		// Draw Cube
+		reflectShader.use();
 		glEnable(GL_CULL_FACE);
 		glBindVertexArray(cubeVAO);
 			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, cubeTexture2);
+			glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
+			glActiveTexture(GL_TEXTURE1);
+			glBindTexture(GL_TEXTURE_2D, cubeTexture);
 			model = glm::mat4(1.0f);
 			model = glm::translate(model, glm::vec3(-1.0f, 0.001f, -1.0f));
-			ourShader.setMat4("model", model);
+			reflectShader.setMat4("model", model);
+			reflectShader.setMat3("normalModel", glm::mat3(glm::transpose(glm::inverse(model))));
 			glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 			model = glm::mat4(1.0f);
 			model = glm::translate(model, glm::vec3(2.0f, 0.001f, 0.0f));
-			ourShader.setMat4("model", model);
+			reflectShader.setMat4("model", model);
+			reflectShader.setMat3("normalModel", glm::mat3(glm::transpose(glm::inverse(model))));
 			glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);
 		glDisable(GL_CULL_FACE);
@@ -352,6 +373,7 @@ int main(int argc, char *argv[]) {
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glBindVertexArray(grassVAO);
+		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, grassTexture);
 		for (auto it = sorted.rbegin(); it != sorted.rend(); ++it) {
 			model = glm::mat4(1.0f);

@@ -256,12 +256,12 @@ int main(int argc, char *argv[]) {
 	unsigned int grassTexture = loadTexture("Resources\\Textures\\window.png");
 
 	vector<std::string> faces{
-		"Resources\\Textures\\\skybox\\right.jpg",
-		"Resources\\Textures\\\skybox\\left.jpg",
-		"Resources\\Textures\\\skybox\\top.jpg",
-		"Resources\\Textures\\\skybox\\bottom.jpg",
-		"Resources\\Textures\\\skybox\\front.jpg",
-		"Resources\\Textures\\\skybox\\back.jpg",
+		"Resources/Textures/skybox/right.jpg",
+		"Resources/Textures/skybox/left.jpg",
+		"Resources/Textures/skybox/top.jpg",
+		"Resources/Textures/skybox/bottom.jpg",
+		"Resources/Textures/skybox/front.jpg",
+		"Resources/Textures/skybox/back.jpg",
 	};
 	unsigned int cubemapTexture = loadCubemap(faces);
 
@@ -332,7 +332,6 @@ int main(int argc, char *argv[]) {
 			glActiveTexture(GL_TEXTURE0);
 			glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
 			model = glm::mat4(1.0f);
-			model = glm::scale(model, glm::vec3(100.0f));
 			cubemapShader.setMat4("model", model);
 			glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);

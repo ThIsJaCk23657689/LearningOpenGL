@@ -19,6 +19,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GLFW_GeometryShader", "GLFW
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GLFW_GeometryShader2", "GLFW_GeometryShader2\GLFW_GeometryShader2.vcxproj", "{88A6A33A-24BD-4D6F-AF87-868EE68B153E}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GLFW_Instancing", "GLFW_Instancing\GLFW_Instancing.vcxproj", "{84BC8127-3D77-4755-BA05-FD1736C73170}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -91,6 +93,14 @@ Global
 		{88A6A33A-24BD-4D6F-AF87-868EE68B153E}.Release|x64.Build.0 = Release|x64
 		{88A6A33A-24BD-4D6F-AF87-868EE68B153E}.Release|x86.ActiveCfg = Release|Win32
 		{88A6A33A-24BD-4D6F-AF87-868EE68B153E}.Release|x86.Build.0 = Release|Win32
+		{84BC8127-3D77-4755-BA05-FD1736C73170}.Debug|x64.ActiveCfg = Debug|x64
+		{84BC8127-3D77-4755-BA05-FD1736C73170}.Debug|x64.Build.0 = Debug|x64
+		{84BC8127-3D77-4755-BA05-FD1736C73170}.Debug|x86.ActiveCfg = Debug|Win32
+		{84BC8127-3D77-4755-BA05-FD1736C73170}.Debug|x86.Build.0 = Debug|Win32
+		{84BC8127-3D77-4755-BA05-FD1736C73170}.Release|x64.ActiveCfg = Release|x64
+		{84BC8127-3D77-4755-BA05-FD1736C73170}.Release|x64.Build.0 = Release|x64
+		{84BC8127-3D77-4755-BA05-FD1736C73170}.Release|x86.ActiveCfg = Release|Win32
+		{84BC8127-3D77-4755-BA05-FD1736C73170}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
